@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
+const ObjectId = require('mongodb').ObjectId;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const port = process.env.PORT || 5000;
@@ -33,12 +34,12 @@ async function run() {
 
     // database connection
     const database = client.db("advance-tours-and-travels");
-    const tourCollaction = database.collection("destinations");
+    const destinationsCollaction = database.collection("destinations");
     // const bookedTour = database.collection("booked");
 
     // GET API
     app.get('/destinations', async (req, res) => {
-        const cursor = tourCollaction.find({});
+        const cursor = destinationsCollaction.find({});
         const destinations = await cursor.toArray();
         res.send(destinations);
     })
@@ -56,8 +57,8 @@ async function run() {
     app.get('/destinationDetails/:id', async (req, res) => {
         const id = req.params.id;
         console.log('specific id',id)
-        const query = { _id: ObjectId(id) };
-        const destination = await tourCollaction.findOne(query);
+        const query = { _id: new ObjectId(id) };
+        const destination = await destinationsCollaction.findOne(query);
         res.json(destination)
     })
 
@@ -65,11 +66,11 @@ async function run() {
     app.post('/destinations', async (req, res) => {
         const destination = req.body;
         console.log('hitting', destination)
-        const result = await tourCollaction.insertOne(destination);
+        const result = await destinationsCollaction.insertOne(destination);
         console.log(result)
         res.json(result)
     })
-    
+
     // // for booking
     // // POST API
     // app.post('/orders', async (req, res) => {
@@ -84,8 +85,8 @@ async function run() {
     //DELETE API
     app.delete('/destinations/:id', async (req, res) => {
         const id = req.params.id;
-        const query = { _id: ObjectId(id) };
-        const result = await tourCollaction.deleteOne(query)
+        const query = { _id: new ObjectId(id) };
+        const result = await destinationsCollaction.deleteOne(query)
         console.log(result)
         res.json(result)
     })
@@ -120,7 +121,7 @@ async function run() {
     // })
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
